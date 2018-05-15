@@ -1,0 +1,3 @@
+venv/
+tf-openpose/
+!tf-openpose/.placeholder
