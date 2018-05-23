@@ -5,8 +5,8 @@ import time
 import cv2
 import numpy as np
 from random import randint
-from estimator import TfPoseEstimator
-from networks import get_graph_path, model_wh
+from tf_openpose.src.estimator import TfPoseEstimator
+from tf_openpose.src.networks import get_graph_path, model_wh
 
 logger = logging.getLogger('TfPoseEstimator-WebCam')
 logger.setLevel(logging.DEBUG)
@@ -19,7 +19,7 @@ logger.addHandler(ch)
 fps_time = 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='tf-pose-estimation realtime webcam')
     parser.add_argument('--img', type=str, default='')
     parser.add_argument('--zoom', type=float, default=1.0)
@@ -70,10 +70,11 @@ if __name__ == '__main__':
         cv2.imshow(name, toshow)
         cv2.imwrite('../../' + name + '.jpeg', image)
        
-    show_for_image('../images/IMG_0339.jpg')
-    show_for_image('../images/IMG_0342.jpg')
-    show_for_image('../images/IMG_0341.jpg')
-    show_for_image('../images/IMG_0340.jpg')
+    show_for_image('tf_openpose/images/test3.png')
+    # show_for_image('tf_openpose/images/IMG_0339.jpg')
+    # show_for_image('tf_openpose/images/IMG_0342.jpg')
+    # show_for_image('tf_openpose/images/IMG_0341.jpg')
+    # show_for_image('tf_openpose/images/IMG_0340.jpg')
     cv2.waitKey(0)
         # fps_time = time.time()
         # if cv2.waitKey(1) == 27:
