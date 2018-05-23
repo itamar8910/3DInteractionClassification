@@ -60,7 +60,7 @@ def get_humans_keypoints(img_path):
 
 def draw_keypoints(img_path):
     keypoints = get_humans_keypoints(img_path)
-    print(keypoints)
+    # print(keypoints)
 
 
     img = Image.open(img_path)

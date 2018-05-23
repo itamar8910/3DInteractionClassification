@@ -30,18 +30,7 @@ while True:
         cv2.imshow('some{}'.format(cap_i), img)
         # cv2.resizeWindow('some{}'.format(cap_i), 100, 100)
     frame_i += 1
-    # ret1, img1 = capture1.read()
-    # ret2, img2 = capture2.read()
-    # img1.resize(300,300)
-    # img2.resize(300,300)
-    # frame_i  += 1
-    # # result = processFrame(img)
-    #
-    # cv2.putText(img1,"time:{:.2f}".format(frame_i / fps1), (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
-    # cv2.imshow('some1', img1)
-    #
-    # cv2.putText(img2, "time:{:.2f}".format(frame_i / fps2), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
-    # cv2.imshow('some2', img2)
+
     if PAUSE:
         k = cv2.waitKey(0)
         if k == 112:
