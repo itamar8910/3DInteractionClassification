@@ -29,8 +29,9 @@ def get_identities_and_keypoints(img_path):
         return math.hypot(p2[0] - p1[0], p2[1] - p2[1])
 
     humans_keypoints = get_humans_keypoints(img_path)
-    # identities = predict_from_keypoints(img_path, humans_keypoints)
-    identities = run_predict(img_path)
+    print(humans_keypoints)
+    identities = predict_from_keypoints(img_path, humans_keypoints)
+    # identities = run_predict(img_path)
 
     # import pickle
     # # pickle.dump(identities, open('dummy/identities.p', 'wb'))
@@ -107,4 +108,4 @@ def draw_humans_and_keypoints(img_path):
     img.show()
 
 if __name__ == "__main__":
-    draw_humans_and_keypoints('dummy/test4.png')
+    draw_humans_and_keypoints('calibration/frames/cam0/frame_25.933.jpg')

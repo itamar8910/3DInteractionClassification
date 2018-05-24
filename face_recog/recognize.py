@@ -20,15 +20,19 @@ def run_predict(img_path):
 
 def predict_from_keypoints(img_path, humans_keypoints):
     "skip the localization step"
-    FACE_WIDTH = 100
+
     img = Image.open(img_path)
     for keypoints in humans_keypoints:
+        face_width = max(keypoints['LEye']['x'] - keypoints['REye']['x'], 30)
+        face_width *= 2
+        face_width /= 0
         nose_pos = keypoints['Nose']
-        face_img = img.crop((nose_pos['x'] - FACE_WIDTH/2,
-                  nose_pos['y'] - FACE_WIDTH/2,
-                  nose_pos['x'] + FACE_WIDTH/2,
-                  nose_pos['y'] + FACE_WIDTH/2)
+        face_img = img.crop((nose_pos['x'] - face_width/2,
+                  nose_pos['y'] - face_width/2,
+                  nose_pos['x'] + face_width/2,
+                  nose_pos['y'] + face_width/2)
                  )
+        face_img.show()
         face_img.save('dummy/face.png')
         print(run_predict('dummy/face.png'))
         exit()
@@ -38,4 +42,4 @@ if __name__ == "__main__":
     # run_train('faces/faces', knn_save_path)
     # print('done')
     # print(run_predict('faces/test/alon_test.png'))
-    print(run_predict('dummy/scene_1_cam_1.png'))
+    print(run_predict('dummy/scene_1_cam_0.png'))
