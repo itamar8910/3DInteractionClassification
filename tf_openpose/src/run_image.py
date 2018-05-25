@@ -70,7 +70,7 @@ if __name__ == "__main__":
         cv2.imshow(name, toshow)
         cv2.imwrite('../../' + name + '.jpeg', image)
        
-    show_for_image('tf_openpose/images/test3.png')
+    show_for_image('calibration/frames/cam0/frame_31.900.jpg')
     # show_for_image('tf_openpose/images/IMG_0339.jpg')
     # show_for_image('tf_openpose/images/IMG_0342.jpg')
     # show_for_image('tf_openpose/images/IMG_0341.jpg')

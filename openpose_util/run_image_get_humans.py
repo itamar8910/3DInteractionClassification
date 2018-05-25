@@ -65,7 +65,7 @@ def get_humans_keypoints(img_path):
         return body_part_to_x_y(human.body_parts[body_part_index]) if body_part_index in human.body_parts.keys() else None
 
     humans = get_humans(image)
-    body_parts= ['REye', 'LEye', 'Nose', 'LShoulder', 'RShoulder', 'RHip', 'LHip', 'LEar', 'REar']
+    body_parts= ['REye', 'LEye', 'Nose', 'LShoulder', 'RShoulder', 'RHip', 'LHip', 'LEar', 'REar', 'Neck']
     return [{part: index_to_body_part_x_y(human, body_part_to_index[part]) for part in body_parts} for human in humans]
 
 def get_human_identity(cvimg, human):
@@ -167,28 +167,44 @@ def get_human_face_width(human_keypoints):
     min_width = 50
     return max(ret_val, min_width)
 
-def get_face_img(cvimg, human_keypoints):
-    face_center_x, face_center_y = get_human_face_center_xy(human_keypoints)
-    face_width = get_human_face_width(human_keypoints)
-    face_width *= 1
-
-    face_img = cvimg[max(0, int(face_center_y - face_width )): min(int(face_center_y + face_width), cvimg.shape[0]),
-               max(0, int(face_center_x - face_width )): min(int( face_center_x + face_width), cvimg.shape[1])]
+def get_face_img(cvimg, face_bbox):
+    # face_center_x, face_center_y = get_human_face_center_xy(human_keypoints)
+    # face_width = get_human_face_width(human_keypoints)
+    # face_width *= 1
+    padding_factor = 2
+    face_width = face_bbox[2] - face_bbox[0]
+    face_height = face_bbox[3] - face_bbox[1]
+    face_img = cvimg[max(0, int(face_bbox[1] - (face_height/2)*padding_factor )): min(int(face_bbox[3] + (face_height/2)*padding_factor), cvimg.shape[0]),
+               max(0, int(face_bbox[0] - (face_width/2)*padding_factor )): min(int( face_bbox[2] + (face_width/2)*padding_factor), cvimg.shape[1])]
     return cv2.resize(face_img, (500, 500))
     
 
 
-def get_face_direction(cvimg, human_keypoints):
-    face_img = get_face_img(cvimg, human_keypoints)
+def get_face_direction(cvimg, face_bbox, keypoints):
+    face_img = get_face_img(cvimg, face_bbox)
     tmp_path = 'tmp/face.png'
     cv2.imwrite(tmp_path, face_img)
+    face_dir_gazr = get_face_dir(path.abspath(tmp_path))
+    if face_dir_gazr is not None:
+        return face_dir_gazr
 
-    return get_face_dir(path.abspath(tmp_path))
+    print("GAZR didn't recognize, falling back on openpose heuristic")
+    # heuristic with openpose
+    if keypoints['REye'] is not None and keypoints['LEye'] is not None:
+        return (0, 0, 0)
+    if keypoints['REye'] is not None:
+        return (1, 0, 0)
+    elif keypoints['LEye'] is not None:
+        return (1, 0, 0)
+
+def find_closest_face(faces, point):
+    return min(faces, key = lambda face : np.linalg.norm([np.mean([face[0], face[2]]), np.mean([face[1], face[3]])] - np.array(point)) )
 
 
 def get_humans_data(img_path):
     cvimg = cv2.imread(img_path)
     humans_keypoints = get_humans_keypoints(img_path)
+    faces = get_faces(img_path)
     humans_data = []
     for human_keypoints in humans_keypoints:
         human_data = {}
@@ -199,11 +215,15 @@ def get_humans_data(img_path):
         human_data['distance'] = human_distance
         human_data['identity'] = human_identity
         human_data['center'] = get_mean_human(human_keypoints)
+        if human_data['keypoints']['Nose'] is not None:
+            human_data['face_bbox'] = find_closest_face(faces, keypoint_to_xy(human_data['keypoints']['Nose']))
+            human_data['face_dir'] = get_face_direction(cvimg, human_data['face_bbox'], human_data['keypoints'])
         humans_data.append(human_data)
-        if is_facing_forward(human_keypoints):
-            face_dir = get_face_direction(cvimg, human_data['keypoints'])
-            if face_dir is not None:
-                human_data['face_dir'] = face_dir
+        # if is_facing_forward(human_keypoints):
+        #
+        #     face_dir = get_face_direction(cvimg, human_data['keypoints'])
+        #     if face_dir is not None:
+        #         human_data['face_dir'] = face_dir
     return humans_data
 
 def get_avg_color_around_point(img, x, y, width=5):
@@ -229,7 +249,14 @@ def get_human_distance(human, MUL_FACT = 10e3):
 def get_mean_human(human):
     return np.mean([keypoint_to_xy(kp) for kp in human.values() if kp is not None], axis = 0)
 
-def get_human_face_center_xy(human_keypoints):
+def get_human_face_center_xy(human):
+    assert 'keypoints' in human.keys()
+
+    human_keypoints = human['keypoints']
+    if 'face_bbox' in human.keys():
+        face_bbox = human['face_bbox']
+        return ((face_bbox[0] + face_bbox[2]) / 2.0 , (face_bbox[1] + face_bbox[3]) / 2.0)
+
     if 'LEar' in human_keypoints.keys() and human_keypoints['LEar'] is not None \
             and 'REar' in human_keypoints.keys() and human_keypoints['REar'] is not None:
         return ((human_keypoints['LEar']['x'] + human_keypoints['REar']['x'])/2.0,
@@ -238,16 +265,28 @@ def get_human_face_center_xy(human_keypoints):
     elif 'Nose' in human_keypoints.keys() and human_keypoints['Nose'] is not None:
         return (human_keypoints['Nose']['x'], human_keypoints['Nose']['y'])
 
+    elif human_keypoints['Neck'] is not None:
+        hips = ['LHip', 'RHip']
+        if any([human_keypoints[x] is not None for x in hips]):
+            mean_heap = np.mean([keypoint_to_xy(human_keypoints[x]) for x in hips if human_keypoints[x] is not None], axis=0)
+            neck_hip_distance = np.linalg.norm(keypoint_to_xy(human_keypoints['Neck']) - mean_heap)
+            neck_face_dist_ratio = 0.25
+            return (human_keypoints['Neck']['x'], human_keypoints['Neck']['y'] - neck_hip_distance*neck_face_dist_ratio)
+        else:
+            neck_face_offset = 50
+            return (human_keypoints['Neck']['x'], human_keypoints['Neck']['y'] - neck_face_offset)
+
     elif human_keypoints['LShoulder'] is not None and human_keypoints['RShoulder'] is not None:
         shoulder_face_offset = 100
         return ((human_keypoints['LShoulder']['x'] +human_keypoints['RShoulder']['x'])/2.0,
                      (human_keypoints['LShoulder']['y'] + human_keypoints['RShoulder']['y']) / 2.0 - shoulder_face_offset,
                 )
+
     else:
         raise Exception("couldn't get human face center")
 
 def get_human_face_center_xyz(human):
-    x_center, y_center = get_human_face_center_xy(human['keypoints'])
+    x_center, y_center = get_human_face_center_xy(human)
     return (x_center, y_center, human['distance'])
 
 
@@ -266,24 +305,29 @@ def get_looking_at_on_another(human1, human2):
 
 def draw_keypoints(img_path):
     # keypoints = get_humans_keypoints(img_path)
-    huamans = get_humans_data(img_path)
-    for human in huamans:
-        human_to_ears_nose_depth(human)
-        print(human)
-    print(huamans)
+    humans = get_humans_data(img_path)
+    # for human in huamans:
+    #     human_to_ears_nose_depth(human)
+    #     print(human)
+    # print(huamans)
 
-    gil = [human for human in huamans if human['identity'] == 'GIL'][0]
-    itamar = [human for human in huamans if human['identity'] == 'ITAMAR'][0]
+    gil = [human for human in humans if human['identity'] == 'GIL'][0]
+    itamar = [human for human in humans if human['identity'] == 'ITAMAR'][0]
+    print('gil looking at itamar:')
     get_looking_at_on_another(gil, itamar)
-
-
-    # print(keypoints)
+    print('itamar looking at gil:')
+    get_looking_at_on_another(itamar, gil)
+    #
+    #
+    # # print(keypoints)
 
 
     cvimg = cv2.imread(img_path)
     img = Image.open(img_path)
     draw = ImageDraw.Draw(img)
-    for human in huamans:
+    for human in humans:
+        print(human['identity'])
+        print(human['keypoints'])
         # if 'LShoulder' in human.keys():
         #     avg_color = get_avg_color_around_point(cvimg, human['LShoulder']['x'], human['LShoulder']['y'])
         #     draw.text([(human['LShoulder']['x'], human['LShoulder']['y'] + 30)], str(avg_color), fill=(0,0,255))
@@ -294,30 +338,35 @@ def draw_keypoints(img_path):
         draw.text([tuple(human['center'])], str(human['distance']), fill=(0, 0, 255))
         draw.text([tuple([human['center'][0], human['center'][1]-40])], str(human['identity']), fill=(0, 255, 0))
 
-        if 'face_dir' in human.keys():
-            face_center_x, face_center_y = get_human_face_center_xy(human['keypoints'])
-            draw.rectangle([(face_center_x - 20, face_center_y - 20), (face_center_x + 20, face_center_y + 20)])
+        face_center = get_human_face_center_xy(human)
+        draw.rectangle([(face_center[0] - 5, face_center[1] - 5), (face_center[0] + 5, face_center[1] + 5)], fill=(255, 0, 0))
+
+        if 'face_bbox' in human.keys():
+            draw.rectangle(((human['face_bbox'][0], human['face_bbox'][1]), (human['face_bbox'][2],human['face_bbox'][3])))
+        if 'face_dir' in human.keys() and human['face_dir'] is not None:
+            face_center_x, face_center_y = get_human_face_center_xy(human)
+            # draw.rectangle([(face_center_x - 20, face_center_y - 20), (face_center_x + 20, face_center_y + 20)])
             look_dir = human['face_dir']
             look_ahead_x = face_center_x + look_dir[0] * 100
             look_ahead_y = face_center_y + look_dir[1] * 100
             draw.line([(face_center_x, face_center_y), (look_ahead_x, look_ahead_y)])
-
         #
-        # for part in human['keypoints'].keys():
-        #     if human['keypoints'][part] is not None:
-        #         x = int(human['keypoints'][part]['x'])
-        #         y = int(human['keypoints'][part]['y'])
-        #         draw.rectangle([(x, y), (x + 20, y + 20)])
-        #         draw.text([(x, y)], part)
-        #     else:
-        #         print(part, ' is missing')
+        for part in human['keypoints'].keys():
+            if human['keypoints'][part] is not None:
+                x = int(human['keypoints'][part]['x'])
+                y = int(human['keypoints'][part]['y'])
+                draw.rectangle([(x-2, y-2), (x + 2, y + 2)], fill=(0,255,0))
+                # draw.text([(x, y)], part)
+            else:
+                print(part, ' is missing')
     img.show()
 
 if __name__ == "__main__":
-    img_path = 'calibration/frames/cam3/frame_40.000.jpg'
-    print(get_faces(img_path))
-    img = cv2.imread(img_path)
-    cv2.imshow('img', img)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
-    # draw_keypoints(img_path)
+    # img_path = 'calibration/frames/cam0/frame_164.700.jpg'
+    img_path = 'calibration/frames/cam0/frame_160.400.jpg'
+    # print(get_faces(img_path))
+    # img = cv2.imread(img_path)
+    # cv2.imshow('img', img)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
+    draw_keypoints(img_path)

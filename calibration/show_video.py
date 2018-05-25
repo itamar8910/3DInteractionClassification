@@ -30,9 +30,10 @@ fpss = [capture.get(cv2.CAP_PROP_FPS) for capture in captures]
 print(fpss)
 
 PAUSE = False
-DRAW_TIME = True
+DRAW_TIME = False
 SAVE_FRAMES = True
-start_save_sec, end_save_sec = 150, 165
+start_save_sec, end_save_sec = 135, 165
+save_frequency = 3 # save every X frames
 
 frame_i = 0
 cam_imgs = [None for i in captures]
@@ -53,16 +54,17 @@ for i in range(len(captures)):
     cv2.setMouseCallback('some{}'.format(i), get_click_rgb, param=(i, ))
 
 while True:
-    for cap_i, cap in enumerate(captures):
+    for cap_i , cap in enumerate(captures):
         frame_sec = frame_i / fpss[cap_i]
-
         ret, img = cap.read()
-
+        if SAVE_FRAMES and frame_sec < start_save_sec:
+            print(frame_sec)
+            continue
         img  = cv2.resize(img, (600, 400))
         cam_imgs[cap_i] = img
         # cv2.circle(img, (50, 200), 20, (0, 0, 0), thickness=-1)
 
-        if SAVE_FRAMES and start_save_sec <= frame_sec <= end_save_sec:
+        if SAVE_FRAMES and  frame_i % save_frequency == 0 and start_save_sec <= frame_sec <= end_save_sec:
             cv2.imwrite('calibration/frames/cam{}/frame_{:.3f}.jpg'.format(cap_i, frame_sec), img)
         if DRAW_TIME:
             cv2.putText(img, "time:{:.2f}".format(frame_sec), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
