@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument('--img', type=str, default='')
     parser.add_argument('--zoom', type=float, default=1.0)
     parser.add_argument('--resolution', type=str, default='432x368', help='network input resolution. default=432x368')
-    parser.add_argument('--model', type=str, default='mobilenet_thin', help='cmu / mobilenet_thin')
+    parser.add_argument('--model', type=str, default='cmu', help='cmu / mobilenet_thin')
     parser.add_argument('--show-process', type=bool, default=False,
                         help='for debug purpose, if enabled, speed for inference is dropped.')
     args = parser.parse_args()
@@ -61,16 +61,18 @@ if __name__ == "__main__":
         image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
 
         logger.debug('show+')
-        cv2.putText(image,
-                    "FPS: %f" % (1.0 / (time.time() - fps_time)),
-                    (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    (0, 255, 0), 2)
+        # cv2.putText(image,
+        #             "FPS: %f" % (1.0 / (time.time() - fps_time)),
+        #             (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+        #             (0, 255, 0), 2)
         toshow = cv2.resize(image, (640, 480))
         name = 'tf-pose-estimation result ' + str(randint(0,100))
         cv2.imshow(name, toshow)
-        cv2.imwrite('../../' + name + '.jpeg', image)
+        cv2.imwrite('../' + name + '.jpeg', image)
        
-    show_for_image('calibration/frames/cam0/frame_31.900.jpg')
+    show_for_image('/home/itamar/University/3dimagery/interactionClassification/tf_openpose/images2/notouch1.png')
+    show_for_image('/home/itamar/University/3dimagery/interactionClassification/tf_openpose/images2/notouch2.png')
+    # show_for_image('/home/itamar/University/3dimagery/interactionClassification/tf_openpose/images2/touch5.png')
     # show_for_image('tf_openpose/images/IMG_0339.jpg')
     # show_for_image('tf_openpose/images/IMG_0342.jpg')
     # show_for_image('tf_openpose/images/IMG_0341.jpg')

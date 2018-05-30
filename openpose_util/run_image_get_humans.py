@@ -1,6 +1,9 @@
 import numpy as np
 from os import path
 import math
+
+import sys
+
 from Tiny_Faces_in_Tensorflow.get_faces import get_faces
 from tf_openpose.src.networks import get_graph_path, model_wh
 from tf_openpose.src.estimator import TfPoseEstimator
@@ -158,7 +161,6 @@ def returnPerson(img, peopleData, point1, point2, point3, point4):
             return 'ALON'
         else:
             return 'ITAMAR'
-    return classify(personDominateColor)
     personDominateHSVColor = cv2.cvtColor(np.float32([[personDominateColor]]), cv2.COLOR_BGR2HSV)
 
     # print(personDominateColor)
@@ -182,12 +184,21 @@ def returnPerson(img, peopleData, point1, point2, point3, point4):
         dv = abs(v1 - v0) / 255.0
 
         score = math.sqrt(dh * dh + ds * ds + dv * dv)
-        print(person , " score : ", score)
+        #print(person , " score : ", score)
         if score < closest:
             closestName = person
             closest = score
-    print("Detected as:",closestName)
-    return closestName
+
+    #print("Detected as:",closestName)
+    THERESHOLD = 0.1
+    if closest <= THERESHOLD:
+        print("Detected By Gils Algorithem ", closestName)
+        return closestName
+    else:
+        print("Detected By Itamars Algorithem ")
+        return classify(personDominateColor)
+
+
 
 
 #return who is the person
@@ -679,6 +690,9 @@ def draw_keypoints(img_path):
     img = Image.open(img_path)
     draw = ImageDraw.Draw(img)
     for human in humans:
+        print(human)
+        print('FRAME 1763')
+        print("***\n <'ITAMAR'> ---> <'GIL'>\n***")
         #print(human['identity'])
         #print(human)
         # if 'LShoulder' in human.keys():
@@ -753,7 +767,9 @@ def draw_faces(img_path):
     # draw = ImageDraw.Draw(img)
     for human in humans:
         face_center = get_human_face_center_xy(human)
-
+        cv2.putText(cvimg, human['identity'],
+                    (int(face_center[0] - 20), int(face_center[1] + 50)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255))
         # cv2.putText(cvimg, "{:.2f}".format(human['distance']),
         #             (int(face_center[0] - 20), int(face_center[1] - 30)),
         #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
@@ -834,12 +850,88 @@ def draw_look_dir(img_path):
                 #print(part, ' is missing')
     img.show()
 
+def save_inspection_img(img_path, dst_path):
+    # keypoints = get_humans_keypoints(img_path)
+    humans = get_humans_data(img_path)
+    print_looking_at_each_other_all(humans)
+
+
+    cvimg = cv2.imread(img_path)
+    img = Image.open(img_path)
+    draw = ImageDraw.Draw(img)
+    for human in humans:
+
+        draw.text([tuple(human['center'])], "{:.2f}".format(human['distance']), fill=(0, 0, 255))
+        draw.text([tuple(human['center'])[0], tuple(human['center'])[1] + 20], human['identity'], fill=(255, 0, 0))
+        # draw.text([tuple([human['center'][0], human['center'][1] - 40])], str(human['identity']), fill=(0, 255, 0))
+
+        # face_center = get_human_face_center_xy(human)
+        # draw.rectangle([(face_center[0] - 5, face_center[1] - 5), (face_center[0] + 5, face_center[1] + 5)], fill=(255, 0, 0))
+
+        if 'face_bbox' in human.keys():
+            draw.rectangle(
+                ((human['face_bbox'][0], human['face_bbox'][1]), (human['face_bbox'][2], human['face_bbox'][3])))
+        if 'face_dir' in human.keys() and human['face_dir'] is not None:
+            face_center_x, face_center_y = get_human_face_center_xy(human)
+            # draw.rectangle([(face_center_x - 20, face_center_y - 20), (face_center_x + 20, face_center_y + 20)])
+            look_dir = human['face_dir']
+            look_ahead_x = face_center_x + look_dir[0] * 100
+            look_ahead_y = face_center_y + look_dir[1] * 100
+            draw.line([(face_center_x, face_center_y), (look_ahead_x, look_ahead_y)], fill=(0,255, 255), width=2)
+        #
+        for part in human['keypoints'].keys():
+            if human['keypoints'][part] is not None:
+                x = int(human['keypoints'][part]['x'])
+                y = int(human['keypoints'][part]['y'])
+
+                draw.rectangle([(x - 2, y - 2), (x + 2, y + 2)], fill=(0, 255, 0))
+                    # draw.text([(x, y)], part)
+            else:
+                pass
+                # print(part, ' is missing')
+    # img.show()
+    img.save(dst_path)
+
+
+def save_inspections(cam_i, t_start, t_stop):
+    captures = [
+        cv2.VideoCapture('footage/footage_synched/footage1.mp4'),
+        cv2.VideoCapture('footage/footage_synched/footage2.mp4'),
+        cv2.VideoCapture('footage/footage_synched/footage3.mp4'),
+        cv2.VideoCapture('footage/footage_synched/footage4.mp4'),
+
+    ]
+    process_every_i = 2
+    fps = 30.0
+    cap = captures[cam_i]
+    cap.set(1, int(t_start * fps))
+    frame_i = 0
+    while True:
+        frame_sec = frame_i / fps + t_start
+        frame_i += 1
+        if frame_i & process_every_i != 0:
+            continue
+        print(cam_i, frame_sec)
+        ret, img = cap.read()
+        img = cv2.resize(img, (600, 400))
+        img_path = 'tmp/tmp_img_{}.png'.format(cam_i)
+        cv2.imwrite(img_path, img)
+        dst_path = 'inspections/cam_{}_time_{}.jpg'.format(cam_i, frame_sec)
+        try:
+            save_inspection_img(img_path, dst_path)
+        except Exception as e:
+            print('Exception while processing img:{}'.format(e))
+
+
 if __name__ == "__main__":
+    save_inspections(sys.argv[1], sys.argv[2], sys.argv[3])
+    # save_inspection_img('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam2/frame_137.600.jpg','inspections/dummy1.jpg' )
     # draw_look_dir('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam3/frame_46.400.jpg')
-    draw_look_dir('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam3/frame_46.467.jpg')
-    exit()
-    draw_faces('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam1/frame_137.600.jpg')
-    # draw_distance('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam1/frame_159.400.jpg')
+    # draw_look_dir('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam3/frame_46.467.jpg')
+    # exit()
+    # draw_faces('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam2/frame_137.600.jpg')
+    # exit()
+    # # draw_distance('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam1/frame_159.400.jpg')
     # draw_distance('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam0/frame_25.000.jpg')
     # exit()
     # createPeopleDataSet()

@@ -78,6 +78,8 @@ def get_face_dir(full_img_path):
 
 
 if __name__ == "__main__":
+    print(get_face_dir('/home/itamar/University/3dimagery/interactionClassification/deepgaze/examples/ex_cnn_head_pose_axes/2.jpg'))
+    exit()
     print('yaw left:', get_face_dir('/home/itamar/forks/gazr/pics/yaw_left.jpg'))
     print('yaw right:', get_face_dir('/home/itamar/forks/gazr/pics/yaw_right.jpg'))
     # exit()

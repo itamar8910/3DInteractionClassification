@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from openpose_util.run_image_get_humans import draw_keypoints
+
 captures = [
     cv2.VideoCapture('footage/footage_synched/footage1.mp4'),
     cv2.VideoCapture('footage/footage_synched/footage2.mp4'),
@@ -28,12 +30,14 @@ def classify(bgr):
 
 fpss = [capture.get(cv2.CAP_PROP_FPS) for capture in captures]
 print(fpss)
-
-PAUSE = False
-DRAW_TIME = False
-SAVE_FRAMES = True
-start_save_sec, end_save_sec = 135, 165
-save_frequency = 3 # save every X frames
+start_time_sec = 50
+for cap_i, cap in enumerate(captures):
+    cap.set(1, start_time_sec * fpss[cap_i])
+PAUSE = True
+DRAW_TIME = True
+SAVE_FRAMES = False
+start_save_sec, end_save_sec = 46, 47
+save_frequency = 1 # save every X frames
 
 frame_i = 0
 cam_imgs = [None for i in captures]
@@ -55,12 +59,12 @@ for i in range(len(captures)):
 
 while True:
     for cap_i , cap in enumerate(captures):
-        frame_sec = frame_i / fpss[cap_i]
+        frame_sec = frame_i / fpss[cap_i] + start_time_sec
         ret, img = cap.read()
         if SAVE_FRAMES and frame_sec < start_save_sec:
             print(frame_sec)
             continue
-        img  = cv2.resize(img, (600, 400))
+        img = cv2.resize(img, (600, 400))
         cam_imgs[cap_i] = img
         # cv2.circle(img, (50, 200), 20, (0, 0, 0), thickness=-1)
 
@@ -74,7 +78,16 @@ while True:
 
     if PAUSE:
         k = cv2.waitKey(0)
-        if k == 112:
+        if k == 105:
+            print('inspection mode')
+            for cap_i in range(len(captures)):
+                print('INSPECTION FOR:', cap_i)
+                frame_sec = frame_i / fpss[cap_i] + start_time_sec
+                img_path = 'calibration/frames/cam{}/frame_{:.3f}.jpg'.format(cap_i, frame_sec)
+                cv2.imwrite(img_path, cam_imgs[cap_i])
+                draw_keypoints(img_path)
+
+        elif  k == 112:
             cv2.waitKey()
 
     if 0xFF & cv2.waitKey(1) == 27:
