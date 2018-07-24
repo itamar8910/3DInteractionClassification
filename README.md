@@ -54,4 +54,30 @@ our steps:
 5. Classify interaction: finally, we can find the L2 distance between the two vectors from the peoples nose, and below a certain threshold alaram as interaction detection.
 <p align="center"><img src="https://preview.ibb.co/dRUEKT/Screen_Shot_2018_07_24_at_15_56_02.png" width="100%"></p>
 
+# Output demo
+We are able to detect face interaction. 
+Whether two people are looking at each other, who are the people and how confident are we about the classification.
+<p align="center"><img src="https://image.ibb.co/hqZHOo/Screen_Shot_2018_07_24_at_17_42_21.png" width="100%"></p>
 
+We then tested our system on multiple people and got great results. We can handle well as many people as fit in our camera view.
+<p align="center"><img src="https://image.ibb.co/eH1Lb8/Screen_Shot_2018_07_24_at_17_42_33.png" width="100%"></p>
+
+The touch detection also works well for as many people that fit the screen.
+<p align="center"><img src="https://image.ibb.co/jiOoUT/Screen_Shot_2018_07_24_at_17_42_44.png" width="100%"></p>
+
+# Video Demo
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_VIDEO_ID_HERE
+" target="_blank"><img src="http://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+
+# Running instructions
+
+
+# Credits
+This project was built in Haifa university image proccessing course.
+This project was lead by Prof. Hagit Hel-or.
+<b>Project members:</b>
+- Itamar Shenhar : itamar8910@gmail.com
+- Alon Melamud : alonmem@gmail.com
+- Gil Maman : gil.maman.5@gmail.com
+Contact for help :)
