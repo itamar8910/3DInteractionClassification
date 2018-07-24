@@ -3,7 +3,7 @@ from os import path
 import math
 
 import sys
-
+sys.path.append('/home/itamar/University/3dimagery/interactionClassification/')
 from Tiny_Faces_in_Tensorflow.get_faces import get_faces
 from tf_openpose.src.networks import get_graph_path, model_wh
 from tf_openpose.src.estimator import TfPoseEstimator
@@ -11,8 +11,9 @@ import cv2
 from PIL import Image, ImageDraw, ImageFont
 import os
 from scipy.stats import itemfreq
-
 from threeD_utils import line_from_center_triag, distance_line_point, get_face_dir
+import itertools
+import pickle
 
 POSE_COCO_BODY_PARTS = [
      [0,  "Nose"],
@@ -35,6 +36,8 @@ POSE_COCO_BODY_PARTS = [
      [17, "LEar"],
      [18, "Background"],
 ]
+
+all_body_parts = [part for idx, part in POSE_COCO_BODY_PARTS]
 
 body_part_to_index = {part : index for index , part in POSE_COCO_BODY_PARTS}
 #print(body_part_to_index)
@@ -70,7 +73,8 @@ def get_humans_keypoints(img_path):
         return body_part_to_x_y(human.body_parts[body_part_index]) if body_part_index in human.body_parts.keys() else None
 
     humans = get_humans(image)
-    body_parts= ['REye', 'LEye', 'Nose', 'LShoulder', 'RShoulder', 'RHip', 'LHip', 'LEar', 'REar', 'Neck']
+    # body_parts = ['REye', 'LEye', 'Nose', 'LShoulder', 'RShoulder', 'RHip', 'LHip', 'LEar', 'REar', 'Neck']
+    body_parts = all_body_parts
     return [{part: index_to_body_part_x_y(human, body_part_to_index[part]) for part in body_parts} for human in humans]
 
 
@@ -619,19 +623,6 @@ def get_human_face_center_xyz(human):
 
 def get_looking_at_on_another(human1, human2):
     assert is_facing_forward(human1['keypoints']) and 'face_dir' in human1.keys()
-
-    # if human1['gazr']:
-    #     human1_face_center = get_human_face_center_xyz(human1)
-    #     huamn1_face_line = (np.array(human1_face_center, dtype=np.float32), np.array(human1_face_center, dtype=np.float32)
-    #                         + 10 * np.array(human1['face_dir'], dtype=np.float32))
-    #
-    #     human2_center = get_human_face_center_xyz(human2)
-    #
-    #     look_distance = distance_line_point(*huamn1_face_line, human2_center)
-    #     #print('look distnace:', look_distance)
-    #     thresh = 50
-    #     return look_distance < thresh, look_distance
-    # else:
     if True:
         human1_face_center = get_human_face_center_xyz(human1)
         human1_face_dir = human1['face_dir']
@@ -648,43 +639,52 @@ def get_looking_at_on_another(human1, human2):
                                         human2_face_center[2]])
     return False
 
-def print_looking_at_each_other_all(humans):
+def get_looking_at_each_other_all(humans):
     #print('print_looking_at_each_other_all')
+    looking_at_each_other = {}
     for human1 in humans:
         for human2 in humans:
             if human1 is human2:
                 continue
             print(human1['identity'], human2['identity'])
+            looking_at_each_other[(human1['identity'], human2['identity'])] = False
             try:
                 # pass
-                print(get_looking_at_on_another(human1, human2))
+                looking_at_each_other[(human1['identity'], human2['identity'])] = get_looking_at_on_another(human1, human2)
+                
             except Exception as e:
                 print("couldn't get if looking at each other{}".format(e))
+    return looking_at_each_other
+
+def get_touching_each_another(human1, human2):
+    wrtists = ['LWrist', 'RWrist']
+    human1_wrists = [keypoint_to_xy(human1['keypoints'][w]) for w in wrtists if human1['keypoints'][w]]
+    human2_wrists = [keypoint_to_xy(human2['keypoints'][w]) for w in wrtists if human2['keypoints'][w]]
+    TOUCH_THRESH = 50
+    print('min wrist distance:', min([np.linalg.norm(np.array(h1_wrist, dtype=np.float32) - np.array(h2_wrist, dtype=np.float32)) for h1_wrist, h2_wrist in itertools.product(human1_wrists, human2_wrists)]))
+    return any([np.linalg.norm(np.array(h1_wrist, dtype=np.float32) - np.array(h2_wrist, dtype=np.float32)) <= TOUCH_THRESH for h1_wrist, h2_wrist in itertools.product(human1_wrists, human2_wrists)])
+
+
+def get_touching_each_other_all(humans):
+    looking_at_each_other = {}
+    for human1 in humans:
+        for human2 in humans:
+            if human1 is human2:
+                continue
+            print(human1['identity'], human2['identity'])
+            looking_at_each_other[(human1['identity'], human2['identity'])] = False
+            try:
+                # pass
+               looking_at_each_other[(human1['identity'], human2['identity'])] = get_touching_each_another(human1, human2)
+            except Exception as e:
+                print("couldn't get if looking at each other{}".format(e))
+
+    return looking_at_each_other
 
 def draw_keypoints(img_path):
     # keypoints = get_humans_keypoints(img_path)
     humans = get_humans_data(img_path)
-    print_looking_at_each_other_all(humans)
-    # for human in huamans:
-    #     human_to_ears_nose_depth(human)
-    #     #print(human)
-    # #print(huamans)
-
-
-
-    # gil = [human for human in humans if human['identity'] == 'GIL'][0]
-    # itamar = [human for human in humans if human['identity'] == 'ITAMAR'][0]
-    # # alon = [human for human in humans if human['identity'] == 'ALON'][0]
-    # #print('gil looking at itamar:')
-    # get_looking_at_on_another(gil, itamar)
-    # #print('itamar looking at gil:')
-    # get_looking_at_on_another(itamar, gil)
-    # # #print('itamar looking at alon')
-    # get_looking_at_on_another(itamar, alon)
-    #
-    #
-    # # #print(keypoints)
-
+    get_looking_at_each_other_all(humans)
 
     cvimg = cv2.imread(img_path)
     img = Image.open(img_path)
@@ -770,14 +770,7 @@ def draw_faces(img_path):
         cv2.putText(cvimg, human['identity'],
                     (int(face_center[0] - 20), int(face_center[1] + 50)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255))
-        # cv2.putText(cvimg, "{:.2f}".format(human['distance']),
-        #             (int(face_center[0] - 20), int(face_center[1] - 30)),
-        #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
-        #
-        # draw.text([(face_center[0]-30, face_center[1] - 40)],
-        #           "{:.2f}".format(human['distance']),
-        #           fill=(255, 0, 0),
-        #           font=ImageFont.truetype("arial.ttf", 20))
+
 
         if 'face_bbox' in human.keys():
             cv2.rectangle(cvimg,
@@ -791,26 +784,8 @@ def draw_faces(img_path):
 def draw_look_dir(img_path):
     # keypoints = get_humans_keypoints(img_path)
     humans = get_humans_data(img_path)
-    print_looking_at_each_other_all(humans)
-    # for human in huamans:
-    #     human_to_ears_nose_depth(human)
-    #     #print(human)
-    # #print(huamans)
+    get_looking_at_each_other_all(humans)
 
-
-
-    # gil = [human for human in humans if human['identity'] == 'GIL'][0]
-    # itamar = [human for human in humans if human['identity'] == 'ITAMAR'][0]
-    # # alon = [human for human in humans if human['identity'] == 'ALON'][0]
-    # #print('gil looking at itamar:')
-    # get_looking_at_on_another(gil, itamar)
-    # #print('itamar looking at gil:')
-    # get_looking_at_on_another(itamar, gil)
-    # # #print('itamar looking at alon')
-    # get_looking_at_on_another(itamar, alon)
-    #
-    #
-    # # #print(keypoints)
 
 
     cvimg = cv2.imread(img_path)
@@ -835,27 +810,28 @@ def draw_look_dir(img_path):
             look_ahead_y = face_center_y + look_dir[1] * 100
 
             draw.line([(face_center_x, face_center_y), (look_ahead_x, look_ahead_y)], fill=(255,0,0), width=2)
-        # #
-        # for part in human['keypoints'].keys():
-        #     if human['keypoints'][part] is not None:
-        #         x = int(human['keypoints'][part]['x'])
-        #         y = int(human['keypoints'][part]['y'])
-        #         if part == 'Nose':
-        #             draw.rectangle([(x-2, y-2), (x + 2, y + 2)], fill=(0,0,255))
-        #         else:
-        #             draw.rectangle([(x-2, y-2), (x + 2, y + 2)], fill=(0,255,0))
-        #         # draw.text([(x, y)], part)
-        #     else:
-        #         pass
-                #print(part, ' is missing')
+
     img.show()
+
+import pickle
 
 def save_inspection_img(img_path, dst_path):
     # keypoints = get_humans_keypoints(img_path)
-    humans = get_humans_data(img_path)
-    print_looking_at_each_other_all(humans)
+    do_calc_humans = True
+    if do_calc_humans:
 
+        humans = get_humans_data(img_path)
+        with open('dummy/humans_pickle.p', 'wb') as f:
+            pickle.dump(humans, f)
+    else:
+        with open('dummy/humans_pickle.p', 'rb') as f:
+            humans = pickle.load(f)
 
+    looking_at_each_other = get_looking_at_each_other_all(humans)
+    touching_each_other = get_touching_each_other_all(humans)
+    print('looking:', looking_at_each_other)
+    print('touching:', touching_each_other)
+    
     cvimg = cv2.imread(img_path)
     img = Image.open(img_path)
     draw = ImageDraw.Draw(img)
@@ -891,6 +867,15 @@ def save_inspection_img(img_path, dst_path):
                 # print(part, ' is missing')
     # img.show()
     img.save(dst_path)
+    dir_path, f_name = path.split(dst_path)
+    f_name = f_name[:f_name.index('.')]
+    looking_path = path.join(dir_path, f_name + '_looking.p')
+    with open(looking_path, 'wb') as f:
+        pickle.dump(looking_at_each_other, f)
+    touching_path = path.join(dir_path, f_name + '_touching.p')
+    with open(touching_path, 'wb') as f:
+        pickle.dump(touching_each_other, f)
+    
 
 
 def save_inspections(cam_i, t_start, t_stop):
@@ -899,20 +884,23 @@ def save_inspections(cam_i, t_start, t_stop):
         cv2.VideoCapture('footage/footage_synched/footage2.mp4'),
         cv2.VideoCapture('footage/footage_synched/footage3.mp4'),
         cv2.VideoCapture('footage/footage_synched/footage4.mp4'),
-
     ]
-    process_every_i = 2
+    process_every_i = 5
     fps = 30.0
     cap = captures[cam_i]
     cap.set(1, int(t_start * fps))
     frame_i = 0
-    while True:
+    import tqdm
+    num_iters = int((t_stop - t_start) * (fps))
+    for _ in tqdm.tqdm([x for x in range(num_iters)], total=num_iters, desc="Cam:{}".format(cam_i)):
         frame_sec = frame_i / fps + t_start
+        if frame_sec > t_stop:
+            break
         frame_i += 1
+        ret, img = cap.read()
         if frame_i & process_every_i != 0:
             continue
         print(cam_i, frame_sec)
-        ret, img = cap.read()
         img = cv2.resize(img, (600, 400))
         img_path = 'tmp/tmp_img_{}.png'.format(cam_i)
         cv2.imwrite(img_path, img)
@@ -924,8 +912,9 @@ def save_inspections(cam_i, t_start, t_stop):
 
 
 if __name__ == "__main__":
-    save_inspections(sys.argv[1], sys.argv[2], sys.argv[3])
-    # save_inspection_img('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam2/frame_137.600.jpg','inspections/dummy1.jpg' )
+    # save_inspections(sys.argv[1], sys.argv[2], sys.argv[3])
+    save_inspection_img('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam2/frame_27.067.jpg','inspections/dummy1.jpg' )
+    exit()
     # draw_look_dir('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam3/frame_46.400.jpg')
     # draw_look_dir('/home/itamar/University/3dimagery/interactionClassification/calibration/frames/cam3/frame_46.467.jpg')
     # exit()
