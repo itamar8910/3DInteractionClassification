@@ -1,6 +1,7 @@
 # Problem definition
 <b>Problem:</b> Given 4 videos from 4 different cameras, <br/>
 We aim to detect the type of interaction and when it happend.
+<br/>
 We currently support 4 types of interaction
 - No interaction
 - Touch
@@ -42,7 +43,7 @@ We wanted a better approach, that does not require calibration and that will wor
 Instead of tring to reconstructe the 3D dimension, we tried to estimate it.
 We used deep learning and Image proccssing technologie in order to approximate the 3D dimension.
 
-Our detection steps:
+<b>Our detection steps:</b><br/>
 <b>1. Detect person using tinyFaces:</b> using deep learning classification(tinyFace model - CNN architecture) we can find the face dimensions of people in the scene with high accuracy even in very small and low resolution.
 <p align="center"><img src="https://preview.ibb.co/iwLwzT/Screen_Shot_2018_07_24_at_15_49_31.png" width="100%"></p>
 
@@ -79,15 +80,16 @@ After evaluation, this method works well and can detect touch for multiple peopl
 <img src="http://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" />
 </a>
+<br/>
 We have taken a video for a couple of seconds and ran our program on it, our results are showed in the video above.
 
 # Running instructions
 
 
 # Credits
-This project was built in Haifa university image processing course.
+This project was built in Haifa university image processing course.<br/>
 This project was lead by Prof. Hagit Hel-or.
-<br/><b>Project members:</b>
+<br/><br/><b>Project members:</b>
 - Itamar Shenhar : itamar8910@gmail.com
 - Alon Melamud : alonmem@gmail.com
 - Gil Maman : gil.maman.5@gmail.com
