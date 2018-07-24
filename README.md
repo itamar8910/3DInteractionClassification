@@ -12,3 +12,6 @@
 # Input
 We receieve as input 4 video cameras that are in the corner of the room. 
 <img src="https://preview.ibb.co/eXVyw8/Screen_Shot_2018_07_24_at_11_42_42.png" width="50%" align="middle">
+
+# First approach - 3D reconstruction
+<img src="https://preview.ibb.co/cmwSpT/Screen_Shot_2018_07_24_at_11_47_07.png" width="50%" align="middle">
