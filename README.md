@@ -1,3 +1,5 @@
+# 3D vision course final project
+
 # Problem definition
 <b>Problem:</b> Given 4 videos from 4 different cameras, <br/>
 We aim to detect the type of interaction and when it happend.
@@ -87,7 +89,7 @@ We have taken a video for a couple of seconds and ran our program on it, our res
 
 
 # Credits
-This project was built in Haifa university image processing course.<br/>
+This project was built in Haifa university 3D vision course.<br/>
 This project was lead by Prof. Hagit Hel-or.
 <br/><br/><b>Project members:</b>
 - Itamar Shenhar : itamar8910@gmail.com
