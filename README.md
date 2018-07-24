@@ -7,7 +7,7 @@
 - Both
 
 <b>Challenge:</b> The system cannot assume anything about the scene <br/>
-<img src="https://image.ibb.co/e4AL9T/Screen_Shot_2018_07_24_at_11_25_30.png" width="50%" style="text-align:center">
+<p style="text-align:center"><img src="https://image.ibb.co/e4AL9T/Screen_Shot_2018_07_24_at_11_25_30.png" width="50%"></p>
 
 # Input
 We receieve as input 4 video cameras that are in the corner of the room. 
