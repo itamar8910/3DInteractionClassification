@@ -1,7 +1,8 @@
 # 3D vision course final project
 This project was built in Haifa university 3D vision course and lead by Prof. Hagit Hel-or.<br/>
 In this project we aim to detect diffrent types of people interaction in 2 approaches.<br/>
-Walkthrough:<br/>
+<br/>
+<b>Walkthrough:</b>
 1. Problem definition <br/>
 2. Input <br/>
 3. First approach - 3D reconstruction<br/>
