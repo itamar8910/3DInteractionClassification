@@ -87,7 +87,7 @@ We have taken a video for a couple of seconds and ran our program on it, our res
 # Credits
 This project was built in Haifa university image processing course.
 This project was lead by Prof. Hagit Hel-or.
-<b>Project members:</b>
+<br/><b>Project members:</b>
 - Itamar Shenhar : itamar8910@gmail.com
 - Alon Melamud : alonmem@gmail.com
 - Gil Maman : gil.maman.5@gmail.com
