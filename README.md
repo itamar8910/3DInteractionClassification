@@ -6,4 +6,5 @@ Given 4 videos from 4 different cameras, Detect type of interaction.
 - Look
 - Both
 
+<b>Challenge:</b> The system cannot assume anything about the scene
 ![alt text](https://preview.ibb.co/bEQ93o/Screen_Shot_2018_07_24_at_11_25_30.png)
