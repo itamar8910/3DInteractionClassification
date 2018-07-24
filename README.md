@@ -8,4 +8,4 @@
 
 <b>Challenge:</b> The system cannot assume anything about the scene <br/>
 <img 
-<img src="https://preview.ibb.co/i3sgio/Screen_Shot_2018_07_24_at_11_34_39.png">
+<img src="https://image.ibb.co/e4AL9T/Screen_Shot_2018_07_24_at_11_25_30.png">
