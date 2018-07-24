@@ -7,5 +7,5 @@
 - Both
 
 <b>Challenge:</b> The system cannot assume anything about the scene
-<img src="https://preview.ibb.co/bEQ93o/Screen_Shot_2018_07_24_at_11_25_30.png%20https://preview.ibb.co/i3sgio/Screen_Shot_2018_07_24_at_11_34_39.png" width="46%;">
-<img src="https://preview.ibb.co/i3sgio/Screen_Shot_2018_07_24_at_11_34_39.png" width="46%;">
+<img src="https://preview.ibb.co/bEQ93o/Screen_Shot_2018_07_24_at_11_25_30.png%20https://preview.ibb.co/i3sgio/Screen_Shot_2018_07_24_at_11_34_39.png" width="40%;">
+<img src="https://preview.ibb.co/i3sgio/Screen_Shot_2018_07_24_at_11_34_39.png" width="40%;">
