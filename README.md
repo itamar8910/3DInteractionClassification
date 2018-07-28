@@ -89,13 +89,13 @@ After evaluation, this method works well and can detect touch for multiple peopl
 <p align="center"><img src="https://image.ibb.co/jiOoUT/Screen_Shot_2018_07_24_at_17_42_44.png" width="100%"></p>
 
 # Video Demo
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_VIDEO_ID_HERE
+<a href="https://www.youtube.com/watch?v=N-2G1_4ZBng
 " target="_blank">
 <img src="http://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" />
 </a>
 <br/>
-A short [video](https://youtube.com) demonstrating our results.
+A short [video](https://www.youtube.com/watch?v=N-2G1_4ZBng) demonstrating our results.
 
 # Running instructions
 
