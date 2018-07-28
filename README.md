@@ -95,7 +95,7 @@ A short [video](https://www.youtube.com/watch?v=N-2G1_4ZBng) demonstrating our r
 
 
 # Credits
-This project was built in Haifa university 3D vision course.<br/>
+This project was built in the University of Haifa, 3D vision course.<br/>
 This project was lead by Prof. Hagit Hel-or.
 <br/><br/><b>Project members:</b>
 - Itamar Shenhar : itamar8910@gmail.com
