@@ -107,4 +107,5 @@ This project was lead by Prof. Hagit Hel-or.
 - Itamar Shenhar : itamar8910@gmail.com
 - Alon Melamud : alonmem@gmail.com
 - Gil Maman : gil.maman.5@gmail.com<br/>
-<b>Fell free to contact us.</b>
+
+<b>Fill free to contact us.</b>
