@@ -95,7 +95,7 @@ After evaluation, this method works well and can detect touch for multiple peopl
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" />
 </a>
 <br/>
-We have taken a video for a couple of seconds and ran our program on it, our results are showed in the video above.
+A short [video](https://youtube.com) demonstrating our results.
 
 # Running instructions
 
