@@ -27,13 +27,13 @@ We currently support 4 types of interaction
 
 # Input
 <p align="center"><img src="https://preview.ibb.co/eXVyw8/Screen_Shot_2018_07_24_at_11_42_42.png" width="50%"></p>
-We receive as input 4 RGB video cameras that are in the corner of the room. 
+We receive as input: 4 RGB videos taken from different corners. 
 
 # First approach - 3D reconstruction
 <p align="center"><img src="https://preview.ibb.co/cmwSpT/Screen_Shot_2018_07_24_at_11_47_07.png" width="75%"></p>
 <br/>
-Our first approach was to reconstruct the 3D scene and to find the distance between the two "nose" vectors of the people in the scene.
-To do this, we first calibrate our 4 cameras with a checkboard.
+Our first approach was to reconstruct the 3D scene and to find the distance between each 2 "looking" vectors of people in the scene.
+To do this, we first calibrate our 4 cameras.
 <p align="center"><img src="https://preview.ibb.co/kfQh68/Screen_Shot_2018_07_24_at_15_29_01.png" width="75%"></p>
 
 <b>Then, we perform the following steps:</b>
@@ -46,16 +46,16 @@ To do this, we first calibrate our 4 cameras with a checkboard.
 7. Classify interaction
 <p align="center"><img src="https://preview.ibb.co/cZUBYo/Screen_Shot_2018_07_24_at_15_36_46.png" width="100%"></p>
 
-This approach worked well but had room for improvment. 
+This approach worked poorley. 
 <br/>
-This is because the many errors that can happend while calibrating.
-We wanted a better approach, that does not require calibration and that will work better.
+This is because the many errors occurred while calibrating.
+We wanted a different approach, that does not require calibration.
 <p align="center"><img src="https://preview.ibb.co/n46VR8/Screen_Shot_2018_07_24_at_15_38_48.png" width="100%"></p>
 
 # Second approach - 3D estimation
 <p align="center"><img src="https://preview.ibb.co/jKXWYo/Screen_Shot_2018_07_24_at_15_46_24.png" width="100%"></p>
-Instead of tring to reconstructe the 3D dimension, we tried to estimate it.
-We used deep learning and Image proccssing technologie in order to approximate the 3D dimension.
+Instead of tring to reconstructe the 3D dimension scene, we tried to estimate it.
+We used deep learning and Image proccssing algorithms in order to approximate the 3D scene.
 
 <b>Our detection steps:</b><br/>
 <b>1. Detect person using tinyFaces:</b> using deep learning classification(tinyFace model - CNN architecture) we can find the face dimensions of people in the scene with high accuracy even in very small and low resolution.
