@@ -92,7 +92,7 @@ After evaluation, this method works well and can detect touch for multiple peopl
 A short [video](https://www.youtube.com/watch?v=N-2G1_4ZBng) demonstrating our results.
 
 # Running instructions
-
+Please refere to our howto.txt for running instructions.
 
 # Credits
 This project was built in the University of Haifa, 3D vision course.<br/>
