@@ -1,0 +1,19 @@
+# clone this repository & cd into its root directory
+# recommended - activate python3.5.2 virtual environemnt
+$ pip3 install -r requirements.txt
+
+# to install tf-openpose: https://github.com/ildoonet/tf-pose-estimation:
+$ git clone https://www.github.com/ildoonet/tf-openpose
+$ cd tf-openpose
+$ pip3 install -r requirements.txt
+# download tf-openpose models
+$ cd models/graph/cmu
+$ bash download.sh
+
+# cd into project root directory
+
+# to run inspection:
+$ python3 run_inspection.py 2 145 155  # this runs the program on footage from camera 2 from t=145sec -> t=155sec
+
+# to view inspection results:
+$ python3 view_inspection_results.py 2 145 155
